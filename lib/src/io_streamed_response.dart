@@ -6,11 +6,7 @@
 
 import 'dart:io';
 
-// ignore: implementation_imports
-import 'package:http/src/base_request.dart';
-
-// ignore: implementation_imports
-import 'package:http/src/streamed_response.dart';
+import 'package:http/http.dart' as http;
 
 typedef Abort = void Function();
 
@@ -26,7 +22,7 @@ typedef Abort = void Function();
 ///
 /// An HTTP response where the response body is received asynchronously after
 /// the headers have been received.
-class IOStreamedResponse extends StreamedResponse {
+class IOStreamedResponse extends http.StreamedResponse {
   final HttpClientResponse _inner;
   List<dynamic>? _redirects;
 
@@ -63,7 +59,7 @@ class IOStreamedResponse extends StreamedResponse {
     Stream<List<int>> stream,
     int statusCode, {
     int? contentLength,
-    BaseRequest? request,
+    http.BaseRequest? request,
     Map<String, String> headers = const {},
     bool isRedirect = false,
     bool persistentConnection = true,

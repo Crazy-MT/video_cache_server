@@ -9,22 +9,17 @@
 import 'dart:async';
 import 'dart:io';
 
-// ignore: implementation_imports
-import 'package:http/src/base_client.dart';
-// ignore: implementation_imports
-import 'package:http/src/base_request.dart';
-// ignore: implementation_imports
-import 'package:http/src/exception.dart';
+import 'package:http/http.dart' as http;
 import 'io_streamed_response.dart';
 
 
 /// Create an [IOClient].
 ///
 /// Used from conditional imports, matches the definition in `client_stub.dart`.
-BaseClient createClient() => IOClient();
+http.BaseClient createClient() => IOClient();
 
 /// A `dart:io`-based HTTP client.
-class IOClient extends BaseClient {
+class IOClient extends http.BaseClient {
   /// The underlying `dart:io` HTTP client.
   HttpClient? _inner;
 
@@ -32,7 +27,7 @@ class IOClient extends BaseClient {
 
   /// Sends an HTTP request and asynchronously returns the response.
   @override
-  Future<IOStreamedResponse> send(BaseRequest request) async {
+  Future<IOStreamedResponse> send(http.BaseRequest request) async {
     var stream = request.finalize();
 
     try {
@@ -55,7 +50,7 @@ class IOClient extends BaseClient {
       return IOStreamedResponse(
           response.handleError((error) {
             final httpException = error as HttpException;
-            throw ClientException(httpException.message, httpException.uri);
+            throw http.ClientException(httpException.message, httpException.uri);
           }, test: (error) => error is HttpException),
           response.statusCode,
           contentLength: response.contentLength == -1 ? null : response.contentLength,
@@ -67,7 +62,7 @@ class IOClient extends BaseClient {
           inner: response,
           abort: () => ioRequest.abort());
     } on HttpException catch (error) {
-      throw ClientException(error.message, error.uri);
+      throw http.ClientException(error.message, error.uri);
     }
   }
 

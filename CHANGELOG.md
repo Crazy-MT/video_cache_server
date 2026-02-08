@@ -1,3 +1,8 @@
+## 0.0.5
+
+* Upgrade dependencies: `web` to `^1.1.1` and `http` to `^1.6.0`.
+* Fix compatibility issues with updated `http` package (migrate internal `IOClient` and `IOStreamedResponse` implementation).
+
 ## 0.0.4
 
 * Add `maxCacheSize` parameter to set the maximum cache size.
