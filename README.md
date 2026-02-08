@@ -16,7 +16,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml  
 dependencies:  
-  video_cache_server: ^0.0.3
+  video_cache_server: ^0.0.4
 ```
 
 ## Usage
@@ -25,7 +25,10 @@ import 'package:video_cache_server/video_cache_server.dart';
 
 // Initialize the cache server  
 final cacheServer = await VideoCacheServer(
-cacheDir: '/path/to/cache/directory',
+  cacheDir: '/path/to/cache/directory',
+  // Set the maximum cache size to 500MB (optional)
+  // When the cache size exceeds this limit, the oldest cached files will be automatically deleted.
+  maxCacheSize: 500 * 1024 * 1024,
 ).start();
 
 // Convert a video URL to a cached URL  

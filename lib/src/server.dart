@@ -58,6 +58,9 @@ class VideoCacheServer {
   final bool? shared;
   final bool lazy;
 
+  /// The maximum cache size in bytes.
+  final int? maxCacheSize;
+
   bool _started = false;
 
   bool get started => _started;
@@ -135,6 +138,7 @@ class VideoCacheServer {
     required String cacheDir,
     HttpClient? httpClient,
     this.lazy = true,
+    this.maxCacheSize,
     this.securityContext,
     this.backlog,
     this.shared,
@@ -182,6 +186,44 @@ class VideoCacheServer {
         }
       } catch (e, s) {
         log('Failed to load cache info', error: e, stackTrace: s);
+      }
+    }
+    await _checkCacheLimit();
+  }
+
+  Future<void> _checkCacheLimit() async {
+    if (maxCacheSize == null) return;
+    int currentSize = _caches.values.fold(0, (sum, cache) => sum + cache.cachedSize);
+    if (currentSize <= maxCacheSize!) return;
+
+    List<CacheInfo> sortedCaches = _caches.values.toList()
+      ..sort((a, b) => a.ts.compareTo(b.ts));
+
+    for (CacheInfo cache in sortedCaches) {
+      if (currentSize <= maxCacheSize!) break;
+
+      String? keyToRemove;
+      _caches.forEach((key, value) {
+        if (value == cache) {
+          keyToRemove = key;
+        }
+      });
+      if (keyToRemove != null) {
+        _caches.remove(keyToRemove);
+      }
+
+      for (CacheFragment fragment in cache.fragments) {
+        try {
+          if (fragment.file != null && fragment.file!.existsSync()) {
+            fragment.file!.deleteSync();
+            currentSize -= fragment.received;
+          }
+        } catch (e, s) {
+          log('Failed to delete cache file: ${fragment.file?.path}', error: e, stackTrace: s);
+        }
+      }
+      if (quiet != true) {
+        log('Cache evicted: ${cache.url}');
       }
     }
   }
@@ -381,6 +423,7 @@ class VideoCacheServer {
     }
 
     if (cacheInfo != null && (cacheInfo.cached(requestRange))) {
+      cacheInfo.ts = DateTime.now().millisecondsSinceEpoch;
       // cache exists and finished download, don't perform another request
       if (cacheInfo.headers != null) {
         cacheInfo.headers!.forEach((key, value) {
@@ -438,6 +481,7 @@ class VideoCacheServer {
     }
 
     if (cacheInfo == null) {
+      await _checkCacheLimit();
       cacheInfo = CacheInfo(url: realUrl!, lazy: lazy, belongTo: owner)..current = 0;
       _caches[cacheKey!] = cacheInfo;
     }

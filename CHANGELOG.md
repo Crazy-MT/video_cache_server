@@ -1,3 +1,8 @@
+## 0.0.4
+
+* Add `maxCacheSize` parameter to set the maximum cache size.
+* Implement LRU (Least Recently Used) cache eviction strategy.
+
 ## 0.0.3
 
 * Initial release with basic video caching functionality

@@ -45,6 +45,10 @@ class CacheInfo {
   int? total;
   Map<String, String>? headers;
 
+  int ts;
+
+  int get cachedSize => fragments.fold(0, (sum, element) => sum + element.received);
+
   bool get finished => current == total;
   StreamSubscription? subscription;
 
@@ -57,7 +61,8 @@ class CacheInfo {
     required this.url,
     this.lazy = true,
     this.belongTo,
-  });
+    int? ts,
+  }) : ts = ts ?? DateTime.now().millisecondsSinceEpoch;
 
   bool cached(RequestRange requestRange) {
     if (requestRange.begin == null || requestRange.end == null) {
@@ -431,6 +436,7 @@ class CacheInfo {
   CacheInfo.fromMap(Map map)
       : url = map['url'] as String,
         lazy = map['lazy'] as bool,
+        ts = map['ts'] as int? ?? DateTime.now().millisecondsSinceEpoch,
         belongTo = map['belongTo'] == null ? null : map['belongTo'] as String {
     fragments.addAll((map['fragments'] as List).map((e) => CacheFragment.fromMap(e as Map<dynamic, dynamic>)));
     current = map['current'] as int;
@@ -449,6 +455,7 @@ class CacheInfo {
       'current': current,
       'total': total,
       'headers': headers,
+      'ts': ts,
     };
   }
 

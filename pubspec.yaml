@@ -1,6 +1,6 @@
 name: video_cache_server
 description: "A Flutter plugin that provides video caching functionality by running a local HTTP server to proxy and cache video content."
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/Crazy-MT/video_cache_server
 repository: https://github.com/Crazy-MT/video_cache_server
 issue_tracker: https://github.com/Crazy-MT/video_cache_server/issues
